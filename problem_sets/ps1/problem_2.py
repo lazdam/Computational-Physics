@@ -22,21 +22,25 @@ def ndiff(fun, x, full = False):
 
     h_approx = eps**(1/3) #Rough estimate to compute best estimate
 
-    approx_3_deriv = (fun(x + 3*h_approx) - 3*fun(x + h_approx) + 3*fun(x - h_approx) - fun(x - 3*h_approx))/(8*h_approx**3) #See equation (11) in PDF
-    
-    print(approx_3_deriv/np.exp(x))
-    h_best = ((fun(x)*h_approx)/approx_3_deriv)**(1/3) #Computes h according to equation (5.7.8) in Numerical Recipes
+    f1 = fun(x + 2*h_approx)
+    f2 = -2*fun(x + h_approx)
+    f3 = 2*fun(x - h_approx)
+    f4 = -fun(x - 2*h_approx)
+
+
+    approx_3_deriv = (f1 + f2 + f3 + f4)/(2*h_approx**3)
+
+    h_best = ((fun(x)*eps)/approx_3_deriv)**(1/3) #Computes h according to equation (5.7.8) in Numerical Recipes
 
     deriv = (fun(x + h_best) - fun(x - h_best))/(2*h_best) #Compute double-sided derivative
 
     
     if full:
-        
+
         f = fun(x)
 
-        best_3_deriv = (fun(x + 3*h_best) - 3*fun(x + h_best) + 3*fun(x - h_best) - fun(x - 3*h_best))/(8*h_best**3) #Compute best estimate of third derivative using best estimate for h. 
-    
-        err_deriv = (eps**(2/3))*(f**(2/3))*(best_3_deriv**(1/3))/deriv #Fractional according to equation (5.7.9) in Numerical Recipes.
+        err_deriv = (eps**(2/3))*(f**(2/3))*(approx_3_deriv**(1/3))/deriv #Fractional error according to equation (5.7.9) in Numerical Recipes.
+        
         
         return deriv, h_best, err_deriv
 
@@ -47,7 +51,7 @@ def ndiff(fun, x, full = False):
 
 #Define a function to test
 def fun(x):
-	return np.exp(x)
+	return x**2
 
 
 #Main function that computes and prints desired results. 
@@ -78,7 +82,7 @@ def main(fun, x, full):
 
 
 
-x = np.array([3, 42])
+x = np.array([500])
 full_arr = [False, True]
 
 if __name__ == "__main__":
