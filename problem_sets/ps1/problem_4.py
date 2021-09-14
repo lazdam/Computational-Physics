@@ -25,6 +25,7 @@ def error_cubic_interpolation(fun, x, plot = False):
     if plot: 
         plt.clf()
         plt.plot(xx, yy, label = 'Cubic Interpolation')
+        plt.plot(x, y, "*", label = 'Data')
         plt.plot(xx, y_true, label = 'True Function')
         plt.legend()
         plt.show()
@@ -46,6 +47,7 @@ def error_spline(fun, x, plot = False):
     if plot: 
         plt.clf()
         plt.plot(xx, yy, label = 'Cubic Spline')
+        plt.plot(x, y, "*", label = 'Data')
         plt.plot(xx, y_true, label = 'True Function')
         plt.legend()
         plt.show()
@@ -59,52 +61,68 @@ def error_spline(fun, x, plot = False):
 
 #Rational Fits are a bit more complicated, so I broke it up into steps
 
-def rat_eval(p,q,x):
-    num = 0
-    for i,p_i in enumerate(p):
-        num += p_i*x**i
-
-    denom = 1
+def rat_eval(x, p, q):
+    
+    top = 0
+    for i, p_i in enumerate(p):
+        top+=p_i*x**i
+    
+    bot = 1    
     for j, q_j in enumerate(q):
-        denom+=q_j*x**(j+1)
+        
+        bot+=q_j*x**(j+1)
+    
+    return top/bot
 
-    return num/denom
+def rat_fit(x, fun, n, m): #n and m represent degree of polynomial, not number of terms
+    
+    assert(len(x)==n+m+1)
 
-def rat_fit(x, fun, n, m):
     y = fun(x)
-    assert(len(x)==n+m-1)
+    
+    mat = np.zeros([n+1+m, n+1+m])
+    
+    for i in range(n+1):
+        mat[:,i] = x**i
 
-    mat = np.zeros([n+m-1, n+m-1])
+    for j in range(0,m):
+        mat[:,n+1+j] = -y*x**(j+1)
+        
+    coeffs = np.linalg.pinv(mat)@y
+    
+    p = coeffs[:n+1]
+    q = coeffs[n+1:]
+    
+    return p, q
 
-    for i in range(n):
-        mat[:,i]=x**i 
 
-    for i in range(1,m):
-        mat[:,i-1+n]=-y*x**i
-
-    pars = np.linalg.inv(mat)@y
-    p = pars[:n]
-    q = pars[n:]
-
-    return p,q
 
 
 def error_rational(fun, x, n, m, plot = False):
 
     p,q = rat_fit(x, fun, n, m)
     y = fun(x)
-    xx = np.linspace(x[2], x[-3], 1001)
+    xx = np.linspace(x[0], x[-1], 100)
     y_true = fun(xx)
-    pred = rat_eval(p,q,xx)
+    
+    yy = np.empty(len(xx))
+    for i, xx_i in enumerate(xx):
+        yy_i = rat_eval(xx_i, p, q)
+        yy[i] = yy_i
+
+    
+
 
     if plot: 
         plt.clf()
-        plt.plot(xx, pred, label = 'Rational Fit')
+        plt.plot(xx, yy, label = 'Rational Fit')
+        plt.plot(x, y, "*", label = 'Data')
         plt.plot(xx, y_true, label = 'True Function')
         plt.legend()
+        plt.savefig('err_rational_lorentzian_n4_m5_pinv')
         plt.show()
     
-    err_rational = np.std(pred - y_true)
+    err_rational = np.std(yy - y_true)
 
     return err_rational
 
@@ -128,20 +146,18 @@ Rational Fit: {2}
 
 
 
-
-
 #Cosine function
-n = 3
-m = 4
-x = np.linspace(-np.pi/2, np.pi/2, n + m - 1)
-compare_accuracy(np.cos, x, n, m)
+n = 4
+m = 5
+x = np.linspace(-np.pi/2, np.pi/2, n + m + 1)
+#compare_accuracy(np.cos, x, n, m, plot = True)
 
 
 #For lorentzian
 def lorentzian(x):
-    return 1/(1 + x**2)
+    return 1/(1 + (x)**2)
 
 n = 4
-m = 3
-x = np.linspace(-1, 1, n + m - 1)
+m = 5
+x = np.linspace(-1, 1, n + m + 1)
 compare_accuracy(lorentzian, x, n, m, plot = True)

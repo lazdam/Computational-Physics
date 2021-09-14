@@ -34,7 +34,8 @@ def ndiff(fun, x, full = False):
 
     deriv = (fun(x + h_best) - fun(x - h_best))/(2*h_best) #Compute double-sided derivative
 
-    
+    print('Fractional error: ', deriv/(2*x) - 1)
+
     if full:
 
         f = fun(x)
@@ -82,7 +83,7 @@ def main(fun, x, full):
 
 
 
-x = np.array([500])
+x = np.array([48]) #Why no work for x = 20? 
 full_arr = [False, True]
 
 if __name__ == "__main__":
