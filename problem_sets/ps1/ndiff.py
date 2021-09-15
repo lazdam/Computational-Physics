@@ -13,26 +13,26 @@ def ndiff(x, fun, full = False):
     f4 = 2*fun(x - h_est)
 
     approx_3d = (f1 + f2 + f3 + f4)/(2*h_est**3)
+    
 
-
-    print(approx_3d < h_est)
-    if approx_3d < h_est:
-        approx_3d = h_est #Set to small value if third derivative is zero to avoid nan/inf
-        h = (eps*f0/approx_3d)**(1/3)
-        num_deriv = (fun(x + h) - fun(x - h))/(2*h)
-        err_deriv = 1000*eps**(2/3)
+    print(np.absolute(approx_3d) < eps)
+    if np.abs(approx_3d) < eps:
+        
+        num_deriv = (fun(x + h_est) - fun(x - h_est))/(2*h_est)
+        err_deriv = eps**(2/3)
+        h = h_est
 
 
         print('done')
 
     else: 
-        h = (eps*f0/approx_3d)**(1/3)
+        h = np.cbrt(eps*f0/approx_3d)
         num_deriv = (fun(x + h) - fun(x - h))/(2*h)
-        err_deriv = (((eps**2)*(f0**2)*approx_3d)**(1/3))/(num_deriv)
+        err_deriv = np.cbrt((eps**2)*(f0**2)*approx_3d)/(num_deriv)
 
         print('yeet')
 
-    print('Fractional error:', num_deriv/(5*x**4 + 6*x)- 1)
+    print('Fractional error:', num_deriv/(1/(1 + x**2))- 1)
 
     if full: 
 
@@ -43,19 +43,17 @@ def ndiff(x, fun, full = False):
 
 
 def fun(x):
-    return x**5 + 3*x**2 + 1
+    return np.arctan(x)
 
-print(ndiff(5, fun, full = True))
-x = np.linspace(0, 2*np.pi, 1000)
 
-y = np.empty(len(x))
-for i, x_i in enumerate(x):
-    y[i] = ndiff(x_i, fun, full = False)
+x = np.linspace(0,2*np.pi, 100)
 
-plt.plot(x,y, label = 'derivative')
-plt.plot(x, 5*x**4 + 6*x, label = 'true')
-plt.legend()
-plt.show()
 
-plt.plot(x, y - (5*x**4 + 6*x))
-plt.show()
+for i, xx_i in enumerate(x):
+
+    print(ndiff(xx_i, fun, full = True))
+    print('------------------------------\n')
+
+     
+    
+
