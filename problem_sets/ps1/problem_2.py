@@ -85,7 +85,7 @@ def main(fun, x, full):
 
 
 
-x = np.array([np.pi/4, np.pi/3]) #Why no work for x = 20? 
+x = np.array([5]) #Why no work for x = 20? 
 full_arr = [True]
 
 if __name__ == "__main__":

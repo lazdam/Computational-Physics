@@ -45,42 +45,40 @@ def ndiff(fun, x, full = False):
     eps_arr = np.full((len(third_deriv)), h_approx)
     
     #Deal with the case when 3rd derivative is zero. In that case, to avoid DivideByZero errors,
-    #if 3_deriv is smaller than eps, set 3_deriv to smallest possible number, i.e. eps. 
-    third_deriv_use = np.max(np.vstack((third_deriv,eps_arr)), axis = 0) 
+    #if 3_deriv is smaller than eps, set 3_deriv to a very small number 
+    third_deriv_use = np.max(np.vstack((third_deriv,eps)), axis = 0)
+
 
     #Compute best h value (see equation (5.7.8) in Numerical Recipes)
-    h = ((fun(x)*eps)/third_deriv_use)**(1/3)
+    h = np.cbrt(fun(x)*eps/third_deriv_use)
 
     #STEP 2: 
     #Calculate centered derivatives and respective errors. 
 
     deriv = (fun(x + h) - fun(x - h))/(2*h)
 
-    print('Fractional error: ', deriv + np.sin(x))
+    print('Error: ', deriv/-np.sin(x) - 1)
 
     if full: 
         f = fun(x)
 
         #Calculate best_3_deriv given h
-        # f1 = fun(x + 2*h)
-        # f2 = -2*fun(x + h)
-        # f3 = 2*fun(x - h)
-        # f4 = -fun(x - 2*h)
+        f1 = fun(x + 2*h)
+        f2 = -2*fun(x + h)
+        f3 = 2*fun(x - h)
+        f4 = -fun(x - 2*h)
 
-        # best_3_deriv = (f1 + f2 + f3 + f4)/(2*h**3)
+        best_3_deriv = (f1 + f2 + f3 + f4)/(2*h**3)
 
-        # eps_arr = np.full((len(best_3_deriv)), h_approx)
-        # third_deriv_use = np.max(np.vstack((best_3_deriv,eps_arr)), axis = 0) #deal with best deriv = 0
+        eps_arr = np.full((len(best_3_deriv)), h_approx)
+        third_deriv_use = np.max(np.vstack((best_3_deriv,eps_arr)), axis = 0) #deal with best deriv = 0
 
 
-        err_deriv = (eps**(2/3))*(f**(2/3))*(third_deriv_use**(1/3))/deriv #Fractional error according to equation (5.7.9) in Numerical Recipes.
+        err_deriv = (eps**(2/3))*(f**(2/3))*(np.cbrt(third_deriv_use))/deriv #Fractional error according to equation (5.7.9) in Numerical Recipes.
 
         return deriv, h, err_deriv
 
     return deriv
-
-
-        
 
 
 #Define a function to test
