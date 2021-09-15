@@ -124,10 +124,11 @@ def estimate_error(V, T_interp, V_neighbor, T_neighbor):
     '''
     vv = np.linspace(min(V_neighbor), max(V_neighbor), 1001)
     max_g = np.abs(np.max((vv - V_neighbor[0])*(vv - V_neighbor[1])*(vv - V_neighbor[2])*(vv - V_neighbor[3]))) #See equation (19) in PDF
-    
-    T0,T1,T2,T3 = T_neighbor[0],T_neighbor[1],T_neighbor[2], T_neighbor[3]
-    max_fourth_deriv = np.abs((T0 - 4*T1 + 6*T_interp - 4*T2 + T3)/(np.min(V - V_neighbor))**4) #See equation (18) in attached PDF
 
+    T0,T1,T2,T3 = T_neighbor[0],T_neighbor[1],T_neighbor[2], T_neighbor[3]
+
+    max_fourth_deriv = np.abs((T0 - 4*T1 + 6*T_interp - 4*T2 + T3)/(np.min(V - V_neighbor))**4) #See equation (18) in attached PDF
+    
     error = max_g*max_fourth_deriv/24 #See equation (19) in attached PDF
 
     return error
@@ -140,7 +141,7 @@ def estimate_error(V, T_interp, V_neighbor, T_neighbor):
 
 
 
-V = np.array([0.2, 0.6, 1.4])
+V = np.linspace(0.2,1.6,10)
 data = np.loadtxt('lakeshore.txt')
 temps, errors = lakeshore(V, data)
 

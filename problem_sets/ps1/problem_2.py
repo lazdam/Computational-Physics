@@ -29,12 +29,14 @@ def ndiff(fun, x, full = False):
 
 
     approx_3_deriv = (f1 + f2 + f3 + f4)/(2*h_approx**3)
+    approx_3_deriv = max(approx_3_deriv, eps) #When third derivative is zero, choose smallest possible value.
 
     h_best = ((fun(x)*eps)/approx_3_deriv)**(1/3) #Computes h according to equation (5.7.8) in Numerical Recipes
 
+    
     deriv = (fun(x + h_best) - fun(x - h_best))/(2*h_best) #Compute double-sided derivative
 
-    print('Fractional error: ', deriv/(2*x) - 1)
+    print('Fractional error: ', deriv/-np.sin(x) - 1)
 
     if full:
 
@@ -52,7 +54,7 @@ def ndiff(fun, x, full = False):
 
 #Define a function to test
 def fun(x):
-	return x**2
+	return np.cos(x)
 
 
 #Main function that computes and prints desired results. 
@@ -83,8 +85,8 @@ def main(fun, x, full):
 
 
 
-x = np.array([48]) #Why no work for x = 20? 
-full_arr = [False, True]
+x = np.array([np.pi/4, np.pi/3]) #Why no work for x = 20? 
+full_arr = [True]
 
 if __name__ == "__main__":
 	
