@@ -10,14 +10,14 @@ def lakeshore(V, data):
     Parameters: 
     -----------
 
-    V: float
+    V: float or ndarray
         Input voltage
     data: '.txt' file
         Textfile containing information about the diodes. First column
         corresponds to temperature, second column corresponding voltage
         and third column dV/dT. 
 
-    Returns: float
+    Returns: ndarray
         Interpolated temperature
     '''
     T_raw, V_raw, dVdT = np.loadtxt('lakeshore.txt').T
@@ -26,60 +26,39 @@ def lakeshore(V, data):
     interpolated_temps = np.array([])
     interpolated_errors = np.array([])
 
+
+    #If data isn't in an array, put it into one. 
     if type(V) == type(np.array([])):
-
-        for i, V_input in enumerate(V): 
-
-            indices = get_nearest_neighbor(V_raw, V_input) #Get indices of 4 nearest neighbors
-            x_use = V_raw[indices[0][1:]] #[0] index to get nearest neighbors of V, [1:] to exclude index of itself as NN. 
-            y_use = T_raw[indices[0][1:]]
-
-            x_use =np.sort(x_use) #Sort in increasing order
-            y_use = np.sort(y_use)[::-1] #Utilizing the fact that y-vals are decreasing
-
-            #Interpolate
-            p = np.polyfit(x_use, y_use, 3) #Fit cubic polynomial to 4 points
-            interp_temp = np.polyval(p, V_input) #Calculate interpolated temperature
-
-            #Estimate error
-            err_interp = estimate_error(V_input,interp_temp, x_use, y_use)
-
-            #Append to arrays
-            interpolated_temps = np.append(interpolated_temps, interp_temp)
-            interpolated_errors = np.append(interpolated_errors, err_interp)
-            
-
+        pass
     else: 
-
-        indices = get_nearest_neighbor(V_raw, V)
-        x_use = V_raw[indices[0][1:]]
-        y_use = T_raw[indices[0][1:]]
-
-        x_use =np.sort(x_use)
-        y_use = np.sort(y_use)[::-1] #Utilizing the fact that y-vals are decreasing, will line up with indices of x_use
+        V = np.array([V])
 
 
-        
-        #Interpolate
-        p = np.polyfit(x_use, y_use, 3) 
-        interp_temp = np.polyval(p, V) 
+    for i, V_input in enumerate(V): 
+
+        indices = get_nearest_neighbor(V_raw, V_input) #Get indices of 4 nearest neighbors
+        x_use = V_raw[indices[0][1:]] #[0] index to get nearest neighbors of V, [1:] to exclude index of itself as NN. 
+        y_use = T_raw[indices[0][1:]] #Get corresponding temperatures of nearest voltages. 
+
+        x_use =np.sort(x_use) #Sort in increasing order
+        y_use = np.sort(y_use)[::-1] #Utilizing the fact that y-vals are decreasing
+
+        #Interpolate, cubic polynomial
+        p = np.polyfit(x_use, y_use, 3) #Fit cubic polynomial to 4 points
+        interp_temp = np.polyval(p, V_input) #Calculate interpolated temperature
 
         #Estimate error
-        err_interp = estimate_error(V, interp_temp, x_use, y_use)
+        err_interp = estimate_error(V_input,interp_temp, x_use, y_use)
 
         #Append to arrays
         interpolated_temps = np.append(interpolated_temps, interp_temp)
         interpolated_errors = np.append(interpolated_errors, err_interp)
             
-        
-
-
 
     return interpolated_temps, interpolated_errors
 
 
 def get_nearest_neighbor(V_raw, V):
-
     '''
     Determines Nearest Neighbours of V using sklearn.
 
@@ -94,32 +73,31 @@ def get_nearest_neighbor(V_raw, V):
         Indices of 4 nearest neighbors of V
     '''
 
-
     V_temp = V_raw.reshape(-1,1)
     V_neighbors = np.vstack((V, V_temp)) #Add input voltage to raw voltages
     
     #Find the four nearest neighbors closest to inputted voltage using NearestNeighbors
-    nbrs = NearestNeighbors(n_neighbors=5, algorithm = 'ball_tree').fit(V_neighbors)
+    nbrs = NearestNeighbors(n_neighbors=5, algorithm = 'ball_tree').fit(V_neighbors) #includes itself as neighbor, so 1 + 4 = 5 nearest neighbors asked for
     distances, indices = nbrs.kneighbors(V_neighbors)
 
     return indices
 
 def estimate_error(V, T_interp, V_neighbor, T_neighbor):
     '''
-    Estimates the uncertainty in interpolated temperature. 
+    Estimates the uncertainty in interpolated temperature. Supporting theory can be found in Section 3.1. 
 
     Parameters:
     -----------
-    V: float
+    V: float or ndarray
         Inputted voltage used to determine interpolated temperature. 
-    T_interp: float
+    T_interp: float or ndarray
         Interpolated temperature corresponding to V
     V_neighbor: ndarray
         4 Nearest neighbors of V. Must be in increasing order.
     T_neighbor: ndarray
         4 temperatures corresponding to V_neighbor. Must align with ordering of V_neighbor
 
-    Returns: float
+    Returns: ndarray
 
     '''
     vv = np.linspace(min(V_neighbor), max(V_neighbor), 1001)
@@ -129,7 +107,7 @@ def estimate_error(V, T_interp, V_neighbor, T_neighbor):
 
     max_fourth_deriv = np.abs((T0 - 4*T1 + 6*T_interp - 4*T2 + T3)/(np.min(V - V_neighbor))**4) #See equation (18) in attached PDF
     
-    error = max_g*max_fourth_deriv/24 #See equation (19) in attached PDF
+    error = max_g*max_fourth_deriv/24 #See equation (21) in attached PDF
 
     return error
 
@@ -141,20 +119,22 @@ def estimate_error(V, T_interp, V_neighbor, T_neighbor):
 
 
 
-V = np.linspace(0.2,1.6,10)
+V = 0.5
+#V = np.linspace(0.2, 1.6, 5)
+
 data = np.loadtxt('lakeshore.txt')
 temps, errors = lakeshore(V, data)
 
 print('''
-Input Voltages:
+Input Voltage(s):
 ---------------
 V = {0}V
 
-Interpolated Temperatures:
+Interpolated Temperature(s):
 --------------------------
 T = {1}K
 
-Estimated Errors on Interpolated Temperatures:
+Estimated Error(s) on Interpolated Temperature(s):
 ---------------------------------------------
 err_T = {2}K
 

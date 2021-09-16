@@ -1,6 +1,8 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 def ndiff(fun, x, full = False):
+
     '''
     Computes numerical derivative of function.
 
@@ -8,90 +10,105 @@ def ndiff(fun, x, full = False):
     -----------
     fun: Function (callable)
         Function you'd like to evaluate the derivative of. 
-    x: ndarray
-        Array of x values to evaluate numerical derivative at. 
+    x: ndarray or float
+        Array of x values to evaluate numerical derivative at. Supports both arrays and single float values
     full: Bool
         Default set to False. If True, function returns derivative, dx and an estimate of error on the derivative. Else, returns derivative only. 
 
     '''
     
+    #Prepare x values. If not already in array, put into one. 
+    if type(x) == type(np.array([])):
+        pass
+    else: 
+        x = np.array([x])
+
     eps = 2**-52 #default for 64-bit machine
-    
-    #Determining h. This requires an estimate on the third derivative at x. 
-    #An expression for the third derivative is given by equation (11) in "Problem Set 1 - Mattias Lazda" (PDF).
 
-    h_approx = eps**(1/3) #Rough estimate to compute best estimate
+    npt = len(x)
+ 
+    #Determine step size, h. Requires estimate of third derivative. 
 
-    f1 = fun(x + 2*h_approx)
-    f2 = -2*fun(x + h_approx)
-    f3 = 2*fun(x - h_approx)
-    f4 = -fun(x - 2*h_approx)
+    h_approx = 0.0001 #Rough estimate to compute best estimate.     
 
+    #Calculate approx third derivative for each x
+    approx_3d = calculate_third_derivative(fun, x, h_approx)
+    f0 = fun(x)
 
-    approx_3_deriv = (f1 + f2 + f3 + f4)/(2*h_approx**3)
-    approx_3_deriv = max(approx_3_deriv, eps) #When third derivative is zero, choose smallest possible value.
+    best_deriv = np.zeros(npt)
+    err_deriv = np.zeros(npt)
+    best_h = np.zeros(npt)
 
-    h_best = ((fun(x)*eps)/approx_3_deriv)**(1/3) #Computes h according to equation (5.7.8) in Numerical Recipes
+    for i, f3_i in enumerate(approx_3d):
 
-    
-    deriv = (fun(x + h_best) - fun(x - h_best))/(2*h_best) #Compute double-sided derivative
+        if np.abs(f3_i) < eps: #This checks if third derivative is zero. If yes, use approximate solutions since h would blow up to infinity otherwise.
 
-    print('Fractional error: ', deriv/-np.sin(x) - 1)
+            h = eps**(1/3)
+            num_deriv = (fun(x[i] + h) - fun(x[i] - h))/(2*h)
+            error = eps**(2/3)
 
-    if full:
-
-        f = fun(x)
-
-        err_deriv = (eps**(2/3))*(f**(2/3))*(approx_3_deriv**(1/3))/deriv #Fractional error according to equation (5.7.9) in Numerical Recipes.
-        
-        
-        return deriv, h_best, err_deriv
+            best_deriv[i], err_deriv[i], best_h[i] = num_deriv, error, h
 
 
+        else: #If third derivative isn't too small for the computer, compute h, numerical derivative and error according to equations (5.7.7/8/9) in Numerical Recipes. 
+            
+            
+            h = np.cbrt(eps*f0[i]/f3_i)
+            num_deriv = (fun(x[i] + h) - fun(x[i] - h))/(2*h)
+            
+            if np.abs(num_deriv) < eps: #I.e. when derivative is zero, can't avoid DivideByZero error when calculating error. Take rough estimate instead. 
+                error = eps**(2/3)
 
-    return deriv
+            else: 
+                error = np.cbrt((eps**2)*(f0[i]**2)*f3_i)/(num_deriv)
+
+            best_deriv[i], err_deriv[i], best_h[i] = num_deriv, error, h
+
+
+    if full: 
+
+        return best_deriv, err_deriv, best_h, 
+
+    else: 
+
+        return best_deriv
+
+
+def calculate_third_derivative(fun, x, h):
+    '''
+    Computes approximate third derivative using centered difference approximation (see equation (12) in attached PDF). 
+
+    Parameters: 
+    -----------
+    fun: function
+        Input function
+    x: ndarray/float
+        x values to evaluate derivative at
+    h: step size
+
+    Returns: ndarray/float
+    '''
+
+    f1 = fun(x + 2*h)
+    f2 = -2*fun(x + h)
+    f3 = 2*fun(x - h)
+    f4 = -fun(x - 2*h)
+
+    return (f1 + f2 + f3 + f4)/(2*h**3)
 
 
 #Define a function to test
 def fun(x):
-	return np.cos(x)
-
-
-#Main function that computes and prints desired results. 
-def main(fun, x, full):
-
-    if full:
-        num_deriv = ndiff(fun, x, full)
-
-        print('''
-        Numerical Derivatives: 
-        ----------------------
-        x = {0}
-        f'(x) = {1}
-        err_deriv = {2}
-        h = {3}\n'''.format(x, num_deriv[0], num_deriv[2], num_deriv[1]))
-	
-    else: 
-        num_deriv = ndiff(fun, x, full)
-
-        print('''
-        Numerical Derivatives:
-        ----------------------
-        x = {0} 
-        f'(x) = {1}\n'''.format(x, num_deriv))
-
-	    
+    return np.cos(x)
 
 
 
+x = np.pi/3
+deriv, error, h  = ndiff(fun, x , full = True)
+print('True Fractional Error:',deriv/-np.sin(x) - 1)
+print('Estimated Fractional Error: ', error)
 
-x = np.array([5]) #Why no work for x = 20? 
-full_arr = [True]
 
-if __name__ == "__main__":
-	
-    for full in full_arr:
 
-	    main(fun, x, full)
 
 

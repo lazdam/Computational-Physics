@@ -5,6 +5,21 @@ from scipy import interpolate
 
 def error_cubic_interpolation(fun, x):
 
+    '''
+    Computes the standard deviation between cubic interpolated and true function values.
+
+    Parameters: 
+    -----------
+    fun: Function
+        Input function
+    x: ndarray
+         x values used to interpolate through. 
+
+    Returns: float
+         std dev
+
+    '''
+
     y = fun(x)
     dx = x[1] - x[0]
 
@@ -26,6 +41,20 @@ def error_cubic_interpolation(fun, x):
     return err_cubic
 
 def error_spline(fun, x):
+    '''
+    Computes the standard deviation between spline and true function values.
+
+    Parameters: 
+    -----------
+    fun: Function
+        Input function
+    x: ndarray
+         x values used to interpolate through. 
+
+    Returns: float
+         std dev
+
+    '''
 
     y = fun(x)
     xx = np.linspace(x[2], x[-3], 1001)
@@ -44,9 +73,22 @@ def error_spline(fun, x):
 #Rational Fits are a bit more complicated, so I broke it up into steps
 
 def rat_eval(x, p, q):
+    '''
+    Evaluates rational function.
 
-    #Recall p is polynomial of degree n, with n+1 coeffs (p = a_0 + a_1x^1 + ... + a_nx^n). 
-    #q is polynomial of degree m with m coeffs (q = b_1x^1 + b_2x^2 + ... + b_mx^m)
+    Parameters: 
+    -----------
+    x: float
+        Input x values
+    p: ndarray
+         coefficients of polynomial p (a_0 + a_1*x^1 + ... + a_n*x^n )
+    q: ndarray
+        coefficients of polynomial q (b_1*x^2 + b_2*x^2 + ... + b_m*x^m)
+
+    Returns: float
+         num/denom
+
+    '''
     
     top = 0
     for i, p_i in enumerate(p):
@@ -59,9 +101,11 @@ def rat_eval(x, p, q):
     
     return top/bot
 
-def rat_fit(x, fun, n, m, pinv = False): #n and m represent degree of polynomial, not number of terms
+def rat_fit(x, fun, n, m, pinv = False): 
+
+    #Performs a rational fit as seen in class. If pinv = True, inverse matrix is computted using np.linalg.pinv. 
     
-    assert(len(x)==n+m+1)
+    assert(len(x)==n+m+1) #matrix has to be square and match the total number of coefficients
 
     y = fun(x)
     
@@ -73,13 +117,9 @@ def rat_fit(x, fun, n, m, pinv = False): #n and m represent degree of polynomial
     for j in range(0,m):
         mat[:,n+1+j] = -y*x**(j+1)
         
-
     if pinv: 
-
         coeffs = np.linalg.pinv(mat)@y
-
     else: 
-
         coeffs = np.linalg.inv(mat)@y
     
     p = coeffs[:n+1]
@@ -88,10 +128,21 @@ def rat_fit(x, fun, n, m, pinv = False): #n and m represent degree of polynomial
     return p, q
 
 
-
-
 def error_rational(fun, x, n, m, pinv = False):
+    '''
+    Computes the standard deviation between rational interpolation and true function values.
 
+    Parameters: 
+    -----------
+    fun: Function
+        Input function
+    x: ndarray
+         x values used to interpolate through. 
+
+    Returns: float
+         std dev
+
+    '''
     p,q = rat_fit(x, fun, n, m, pinv)
     y = fun(x)
     xx = np.linspace(x[2], x[-3], 100) #compare std deviation on same interval as cubic poly and spline
@@ -138,17 +189,18 @@ compare_accuracy(np.cos, x, n, m)
 #b) Lorentzian function. pinv = False (using np.linalg.inv)
 def lorentzian(x):
     return 1/(1 + (x)**2)
-
 n = 4
 m = 5
 x = np.linspace(-1, 1, n + m + 1)
 print('b) Comparing Accuracy for f(x) = 1/(1 + x^2). m = {0} & n = {1}. Note: np.linalg.inv used.'.format(n,m))
-
 compare_accuracy(lorentzian, x, n, m)
+
+
 
 #c) Lorentzian function. pinv = True
 print('c) Comparing Accuracy for f(x) = 1/(1 + x^2). m = {0} & n = {1}. Note: np.linalg.pinv used.'.format(n,m))
 compare_accuracy(lorentzian, x, n, m, pinv = True)
+
 
 
 #d) Comparing p, q from np.linalg.inv vs. np.linalg.pinv
