@@ -41,26 +41,23 @@ def ndiff(fun, x, full = False):
 
     for i, f3_i in enumerate(approx_3d):
 
-        if np.abs(f3_i) < eps: #This checks if third derivative is zero. If yes, use approximate solutions since h would blow up to infinity otherwise.
+
+
+        if np.abs(f3_i) < eps: #This checks if third derivative is zero. If yes, use approximate solution for h since it would blow up to infinity otherwise.
 
             h = eps**(1/3)
             num_deriv = (fun(x[i] + h) - fun(x[i] - h))/(2*h)
-            error = eps**(2/3)
+            error = np.abs(np.cbrt((eps**2)*(f0[i]**2)*f3_i)) #absolute error
 
             best_deriv[i], err_deriv[i], best_h[i] = num_deriv, error, h
 
 
         else: #If third derivative isn't too small for the computer, compute h, numerical derivative and error according to equations (5.7.7/8/9) in Numerical Recipes. 
-            
-            
-            h = np.cbrt(eps*f0[i]/f3_i)
-            num_deriv = (fun(x[i] + h) - fun(x[i] - h))/(2*h)
-            
-            if np.abs(num_deriv) < eps: #I.e. when derivative is zero, can't avoid DivideByZero error when calculating error. Take rough estimate instead. 
-                error = eps**(2/3)
 
-            else: 
-                error = np.cbrt((eps**2)*(f0[i]**2)*f3_i)/(num_deriv)
+            h = np.cbrt(eps*f0[i]/f3_i)
+
+            num_deriv = (fun(x[i] + h) - fun(x[i] - h))/(2*h)
+            error = np.abs(np.cbrt((eps**2)*(f0[i]**2)*f3_i)) #absolute error
 
             best_deriv[i], err_deriv[i], best_h[i] = num_deriv, error, h
 
@@ -86,7 +83,7 @@ def calculate_third_derivative(fun, x, h):
         x values to evaluate derivative at
     h: step size
 
-    Returns: ndarray/float
+    Returns: ndarray
     '''
 
     f1 = fun(x + 2*h)
@@ -99,14 +96,14 @@ def calculate_third_derivative(fun, x, h):
 
 #Define a function to test
 def fun(x):
-    return np.cos(x)
+    return np.exp(x)
 
 
 
-x = np.pi/3
+x = np.linspace(0,1,100)
 deriv, error, h  = ndiff(fun, x , full = True)
-print('True Fractional Error:',deriv/-np.sin(x) - 1)
-print('Estimated Fractional Error: ', error)
+
+
 
 
 
