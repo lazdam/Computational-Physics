@@ -1,16 +1,17 @@
 import numpy as np
-
+import matplotlib.pyplot as plt
+from scipy import integrate
 
 #Define constants and variables: 
-R = 1
+R = 1.0
 sigma = 1
-epsilon = 8.85418782e-12
-z = np.concatenate((np.linspace(0,R,100), np.linspace(R+0.1,R+100, 1000)))
+epsilon = 1
+z = np.linspace(0, 20, 101)
 npts = len(z)
 
 
-def func(theta,z):
-    
+def func(theta, z):
+
     global sigma
     global epsilon
     global R
@@ -25,8 +26,8 @@ def func(theta,z):
 
 def integrate_adaptive(func, theta0, theta1, z, tol):
 
-    #Hardwire to use simpsons
-    print('integrating between ',theta0,theta1)
+    #Hardwire to use Simpsons
+
     theta = np.linspace(theta0, theta1, 5) 
     y = func(theta, z)
     
@@ -42,18 +43,33 @@ def integrate_adaptive(func, theta0, theta1, z, tol):
 
     else: 
         theta_mid = (theta0+theta1)/2
-        left=integrate_adaptive(func,0,theta_mid, z, tol/2)
+        left=integrate_adaptive(func,theta0,theta_mid, z, tol/2)
         right=integrate_adaptive(func,theta_mid, theta1, z,tol/2)
         return left+right
 
 
-E_fields = np.empty(npts)
-tol = 1e-1
+E_fields = np.zeros(npts)
+E_fields_quad = np.zeros(npts)
+tol = 1e-3
 
 for i in range(npts):
+
+    if z[i] == R:
+        print('Singularity at z = R. Skipping to avoid RecursionError.')
+        continue
+    
+    def func_temp(theta):
+        return func(theta, z[i])
+
+    E_i_quad = integrate.quad(func_temp, 0, np.pi)
+    E_fields_quad[i] = E_i_quad[0]
 
     E_i = integrate_adaptive(func, 0, np.pi, z[i], tol)
     E_fields[i] = E_i
 
-plt.plot(z, E_fields)
-plt.show()
+
+if True: 
+    plt.plot(z, E_fields, label = 'My integral')
+    plt.plot(z, E_fields_quad, label = 'quad')
+    plt.legend()
+    plt.show()
