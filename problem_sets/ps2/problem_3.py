@@ -1,18 +1,18 @@
 import numpy as np 
 from numpy.polynomial.chebyshev import chebfit, chebval
 
-def model_log2(npts=20, ord=19, tol=1e-6):
+def model_log2(npts, ord, tol):
     '''
     Models the log2 function in x e [0.5, 1]
 
     Parameters: 
     -----------
     npts: int
-        Number of points to fit through. Default 20. 
+        Number of points to fit through.
     ord: int
-        Maximum order of Chebyshev Polynomial used. Default set to 19.
+        Maximum order of Chebyshev Polynomial used.
     tol: float
-        Error tolerance on Chebyshev polynomial fit. Default 1e-6 
+        Error tolerance on Chebyshev polynomial fit. 
     
     Returns: np.array
         Array of truncated Chebyshev polynomial coefficients. 
@@ -38,7 +38,7 @@ def model_log2(npts=20, ord=19, tol=1e-6):
     return coeffs
 
 
-def mylog2(x):
+def mylog2(x, npts, ord, tol):
 
     '''
     Computes the natural logarith of any number with accuracy specified in model_log2.
@@ -55,7 +55,7 @@ def mylog2(x):
     M, exp = np.frexp(x) #M between (0.5, 1), exp an integer
     
     #Get coefficients using default fit
-    coeffs = model_log2() 
+    coeffs = model_log2(npts, ord, tol) 
     
     #Re-scale M to be between -1 and 1
     M_scaled = 4*M - 3 
@@ -70,7 +70,8 @@ def mylog2(x):
 
 
 x = 0.0001
-y = mylog2(x)
+npts, ord, tol = 20, 19, 1e-6
+y = mylog2(x, npts, ord, tol)
 y_true = np.log(x)
 
 print('My natural log is: {0} with true error {1}.'.format(y, np.abs(y - y_true)))
