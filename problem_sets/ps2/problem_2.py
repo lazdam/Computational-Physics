@@ -98,7 +98,7 @@ old_counter = 0
 
 integral = integrate_adaptive(fun, a, b, 1e-7)
 
-print('''The integral of f(x) = exp(x) from {0} to {1} is {2}. We performed {3} function calls as compared to the {4} function calls performed in class (saved {5} function calls!).'''.format(a,b,integral,new_counter, old_counter, old_counter - new_counter))
+print('''The integral of f(x) = exp(x) from {0} to {1} is {2}. We performed {3} function calls as compared to the {4} function calls performed in class (saved {5} function calls!).\n'''.format(a,b,integral,new_counter, old_counter, old_counter - new_counter))
 
 
 #f(x) = Lorentzian 
@@ -112,4 +112,4 @@ old_counter = 0
 
 integral = integrate_adaptive(fun, a, b, 1e-7)
 
-print('''The integral of f(x) = 1/(1 + x^2) from {0} to {1} is {2}. We performed {3} function calls as compared to the {4} function calls performed in class (saved {5} function calls!).'''.format(a,b,integral,new_counter, old_counter, old_counter - new_counter))
+print('''The integral of f(x) = 1/(1 + x^2) from {0} to {1} is {2}. We performed {3} function calls as compared to the {4} function calls performed in class (saved {5} function calls!).\n'''.format(a,b,integral,new_counter, old_counter, old_counter - new_counter))

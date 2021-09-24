@@ -6,7 +6,8 @@ from scipy import integrate
 R = 1.0
 sigma = 1
 epsilon = 1
-z = np.linspace(0, 20, 101)
+z = np.linspace(0, 20, 1001)
+print(z)
 npts = len(z)
 
 
@@ -50,26 +51,33 @@ def integrate_adaptive(func, theta0, theta1, z, tol):
 
 E_fields = np.zeros(npts)
 E_fields_quad = np.zeros(npts)
-tol = 1e-3
+tol = 1e-7
 
 for i in range(npts):
 
-    if z[i] == R:
-        print('Singularity at z = R. Skipping to avoid RecursionError.')
-        continue
-    
     def func_temp(theta):
         return func(theta, z[i])
 
     E_i_quad = integrate.quad(func_temp, 0, np.pi)
     E_fields_quad[i] = E_i_quad[0]
 
+    if z[i] == R:
+        print('Singularity at z = R. Skipping to avoid RecursionError.')
+        continue
+    
+
     E_i = integrate_adaptive(func, 0, np.pi, z[i], tol)
     E_fields[i] = E_i
 
 
 if True: 
+
+    z_true = np.linspace(R,20,101)
+    E_true = 1/z_true**2
+
     plt.plot(z, E_fields, label = 'My integral')
-    plt.plot(z, E_fields_quad, label = 'quad')
+    plt.plot(z, E_fields_quad, ls = '--', label = 'quad')
+    plt.plot(z_true, E_true, label = 'True field')
     plt.legend()
+    plt.savefig('q1')
     plt.show()
