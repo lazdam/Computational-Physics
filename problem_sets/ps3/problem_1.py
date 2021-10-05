@@ -1,16 +1,14 @@
 import numpy as np
 
+#Define function to integrate. Constant throughout the problem. 
 
-
-#Define function to integrate. Constant throughout problem. 
 def fun(x,y):
-    return y/(1+x**2)
+    return y/(1 + x**2)
 
-#PART 1: Integrate Using RK4, 4 function evaluations per step
-def rk4_step(fun,x,y,h):
 
-    global counter_1
-    counter_1+=4 
+def rk4_step(fun, x, y, h):
+
+    #Copied from class
 
     k1 = h*fun(x,y)
     k2 = h*fun(x+h/2, y+k1/2)
@@ -20,74 +18,87 @@ def rk4_step(fun,x,y,h):
  
     return y + dy
 
-#Specify initial value
-y0 = 1 
-counter_1 = 0
+def rk4_stepd(fun, x, y, h):
 
-#Specify x values and step size
-x = np.linspace(-20,20,100)
-h = np.median(np.diff(x))
-
-#Initialize y values. Calculated using rk4_step
-y = np.zeros(len(x))
-y[0] = y0
-
-for i in range(len(x) - 1):
-    y[i+1] = rk4_step(fun, x[i],y[i],h)
-
-y_true = np.exp(np.arctan(x) + np.arctan(20)) #True solution to calculate error
-error = np.abs(np.std(y - y_true))
-
-print('Using standard rk4, with a total of {0} function calls, the error is {1}'.format(counter_1, error))
+    #Normally I would re-use rk4_step: however, if I did that, I would not benefit from the function call that I can save (i.e. f(x,y))
+    #Instead, I will re-write it to guarantee that I only have 11 function calls instead of 12 per step. 
 
 
-#PART 2: Adaptive RK4
+    #Calculate y1
+    k1 = h*fun(x,y)
+    k2 = h*fun(x+h/2, y+k1/2)
+    k3 = h*fun(x+h/2, y+k2/2)
+    k4 = h*fun(x+h, y+k3)
+    dy = (k1+ 2*k2 + 2*k3 + k4)/6
 
-def rk4_stepd(fun,x,y,h):
+    #Current number of function calls: 4
 
-    left = rk4_step(fun, x, y, h/2)
-    right = rk4_step(fun,x + h/2, left, h/2)
+    y1 = y + dy
 
-    y2 = right
-    y1 = rk4_step(fun, x, y, h)
+    #Calculate y2:
 
-    Delta = y2 - y1
+    #1. Calculate first half step
+    a = h/2 #Re-scale h
+    k1 = k1/2 #This is where we save a function call. 
+    k2 = a*fun(x+a/2, y+k1/2)
+    k3 = a*fun(x+a/2, y+k2/2)
+    k4 = a*fun(x+a, y+k3)
+    dy = (k1+ 2*k2 + 2*k3 + k4)/6
+
+    #Current number of function calls: 7
+
+    y2_halfway = y + dy
+
+
+    #Shift starting variables
+    x = x + h/2
+    y = y2_halfway
+
+    #2. Calculate second half step
+    k1 = a*fun(x, y)
+    k2 = a*fun(x+a/2, y+k1/2)
+    k3 = a*fun(x+a/2, y+k2/2)
+    k4 = a*fun(x+a, y+k3)
+    dy = (k1+ 2*k2 + 2*k3 + k4)/6
+
+    #Current number of function calls: 11
+    y2 = y + dy
+
+    #Remove leading order
+    Delta = y2 - y1 
 
     return y2 + Delta/15
 
 
-#Specify initial value
-y0 = 1 
-counter_1 = 0
-#Specify x values and step size
-x = np.linspace(-20,20,100)
-h = np.median(np.diff(x))
 
-#Initialize y values. Calculated using rk4_step
+#PART 1:
+#--------------------------- 
+x = np.linspace(-20, 20, 200)
+h = np.median(np.diff(x))
 y = np.zeros(len(x))
-y[0] = y0
+y[0] = 1 #Set initial value
 
 for i in range(len(x) - 1):
-    y[i+1] = rk4_stepd(fun, x[i],y[i],h)
+    y[i+1] = rk4_step(fun, x[i], y[i], h)
 
 y_true = np.exp(np.arctan(x) + np.arctan(20)) #True solution to calculate error
-error = np.abs(np.std(y - y_true))
+error_v1 = np.abs(np.std(y - y_true))
 
-print('Using adaptive rk4, with a total of {0} function calls, the error is {1}'.format(counter_1, error))
+#PART 2: 
+#---------------------------
+x = np.linspace(-20,20,72)
+h = np.median(np.diff(x))
+y = np.zeros(len(x))
+y[0] = 1
 
+for i in range(len(x) - 1):
+    y[i+1] = rk4_stepd(fun, x[i], y[i], h)
 
+y_true = np.exp(np.arctan(x) + np.arctan(20)) #True solution to calculate error
+error_v2 = np.abs(np.std(y - y_true))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+print('''
+PART 1 (rk4_step): Using 200 points (796 function evaluations total), ERROR: {0}
+\n
+PART 2 (rk4_stepd): Using 72 points (792 function evaluations total), ERROR: {1}
+    '''.format(error_v1, error_v2))

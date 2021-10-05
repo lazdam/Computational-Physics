@@ -1,0 +1,6 @@
+
+PART 1 (rk4_step): Using 200 points (796 function evaluations total), ERROR: 0.0001201707231111847
+
+
+PART 2 (rk4_stepd): Using 72 points (792 function evaluations total), ERROR: 2.3943846731864163e-05
+    
