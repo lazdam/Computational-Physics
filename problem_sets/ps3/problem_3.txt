@@ -29,6 +29,6 @@ f = 1.4996599841253864m with error 0.0005804077581894136m.
 
 Taking into account significant digits: 
 f = 1.4997 +/- 0.0006 m, 
-binging us well in range of the desired 1.5m!
+bringing us well in range of the desired 1.5m!
 
     

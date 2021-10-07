@@ -88,7 +88,7 @@ f = {2}m with error {3}m.
 
 Taking into account significant digits: 
 f = {4} +/- {5} m, 
-binging us well in range of the desired 1.5m!
+bringing us well in range of the desired 1.5m!
 
     '''.format(std, err_params[0], f, err_f , round(f, 4), round(err_f, 4)))
 
