@@ -93,43 +93,64 @@ def fun2(t, N, half_life):
 
     return dNdt*np.log(2)
 
+#------------------#
 #i) U238 --> Pb206
+#------------------#
+
 half_life = half_lives[0]
 N_0 = np.array([1.0, 0.0]) #Initial values. Assuming it decays instantly into Pb. 
 t0 = 0
 t1 = half_life
 
+#modify halflife
 def temp(t, N, half_life = half_life):
     return fun2(t, N, half_life)
 
 #Get amount of decayed Pb over one half-life of U238
-decay_products = integrate.solve_ivp(temp, [t0, t1], N_0, method = 'Radau')
+decay_products = integrate.solve_ivp(temp, [t0, t1], N_0, method = 'Radau', t_eval = np.linspace(0, half_life, 1000))
 N_t = decay_products.y
 
+#Get analytic result, for comparison
+t = np.linspace(0,max(decay_products.t),1000)
+lamda = np.log(2)/half_life
+true_ratio = (1 - np.exp(-lamda*t))/np.exp(-lamda*t)
 
 #Plot
-plt.plot(decay_products.t, N_t[1]/N_t[0])
+plt.plot(decay_products.t, N_t[1]/N_t[0], label = 'ODE')
+plt.plot(t, true_ratio, label = 'True', ls = '--')
 plt.xlabel('Time, minutes')
 plt.ylabel('Pb206/U238')
+plt.legend()
 plt.savefig('./figure1.pdf')
 plt.show()
 
+#------------------#
 #ii) U234 --> T230
+#------------------#
+
 half_life = half_lives[4]
 N_0 = np.array([1.0, 0.0]) #Initial values.
 t0 = 0
 t1 = half_life
 
+#modify halflife
 def temp(t, N, half_life = half_life):
     return fun2(t, N, half_life)
 
 #Get amount of decayed T230 over one half-life of U234
-decay_products = integrate.solve_ivp(temp, [t0, t1], N_0, method = 'Radau')
+decay_products = integrate.solve_ivp(temp, [t0, t1], N_0, method = 'Radau', t_eval = np.linspace(t0, t1, 1000))
 N_t = decay_products.y
 
+#Get analytic result, for comparison
+t = np.linspace(0,max(decay_products.t),1000)
+lamda = np.log(2)/half_life
+true_ratio = (1 - np.exp(-lamda*t))/np.exp(-lamda*t)
+
 #Plot ratio
-plt.plot(decay_products.t, N_t[1]/N_t[0])
+plt.plot(decay_products.t, N_t[1]/N_t[0], label = 'ODE')
+plt.plot(t, true_ratio, label = 'True', ls = '--')
 plt.xlabel('Time, minutes')
 plt.ylabel('T230/U234')
+plt.legend()
 plt.savefig('./figure2.pdf')
 plt.show()

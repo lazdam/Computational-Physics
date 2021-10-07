@@ -1,0 +1,34 @@
+
+[PART B]: 
+
+Best Fit Parameters (before conversion):
+---------------------------------------
+a: 0.00016670445477399463 mm-1
+B: -0.019411558866624688
+C: 0.0004535990259486348
+D: -1512.311816673905 mm
+
+
+Best Fit Parameters (after conversion):
+---------------------------------------
+a: 0.00016670445477399463 mm-1
+x0: -1.3604886161068408 mm
+y0: 58.221476123542764 mm
+z0: -1512.8772100375975 mm
+
+
+[PART C]: 
+
+The Noise was estimated to be uncorrelated with standard deviation 3.768338648784728. From this, we estimated the error 
+in 'a' according to equation (9) in attached PDF.
+
+Error on a: 6.451899757263439e-08 mm-1
+
+Using equations (10) and (11) in attached PDF, we calculated the focal length to be: 
+f = 1.4996599841253864m with error 0.0005804077581894136m.
+
+Taking into account significant digits: 
+f = 1.4997 +/- 0.0006 m, 
+binging us well in range of the desired 1.5m!
+
+    

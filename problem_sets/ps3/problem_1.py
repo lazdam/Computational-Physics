@@ -20,8 +20,7 @@ def rk4_step(fun, x, y, h):
 
 def rk4_stepd(fun, x, y, h):
 
-    #Normally I would re-use rk4_step: however, if I did that, I would not benefit from the function call that I can save (i.e. f(x,y))
-    #Instead, I will re-write it to guarantee that I only have 11 function calls instead of 12 per step. 
+    #Hardwired to be independent of rk4_step. Guarantees to only have 11 function calls. See equations (1)-(4) in attached PDF. 
 
 
     #Calculate y1
@@ -49,7 +48,6 @@ def rk4_stepd(fun, x, y, h):
 
     y2_halfway = y + dy
 
-
     #Shift starting variables
     x = x + h/2
     y = y2_halfway
@@ -64,10 +62,10 @@ def rk4_stepd(fun, x, y, h):
     #Current number of function calls: 11
     y2 = y + dy
 
-    #Remove leading order
+    #Remove leading order according to equation (3) in attached PDF
     Delta = y2 - y1 
 
-    return y2 + Delta/15
+    return y2 + Delta/15 #equation (4) in attached PDF
 
 
 
