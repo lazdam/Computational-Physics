@@ -1,11 +1,9 @@
-import numpy as np
 import camb
-from matplotlib import pyplot as plt
-import time
+import numpy as np
+import matplotlib.pyplot as plt
 
-
+#Copied code from Jon's example
 def get_spectrum(pars,lmax=3000):
-    #print('pars are ',pars)
     H0=pars[0]
     ombh2=pars[1]
     omch2=pars[2]
@@ -23,8 +21,7 @@ def get_spectrum(pars,lmax=3000):
     return tt[2:]
 
 
-plt.ion()
-
+#Part I
 pars=np.asarray([60,0.02,0.1,0.05,2.00e-9,1.0])
 planck=np.loadtxt('COM_PowerSpect_CMB-TT-full_R3.01.txt',skiprows=1)
 ell=planck[:,0]
@@ -34,11 +31,13 @@ model=get_spectrum(pars)
 model=model[:len(spec)]
 resid=spec-model
 chisq=np.sum( (resid/errs)**2)
-print("chisq is ",chisq," for ",len(resid)-len(pars)," degrees of freedom.")
-#read in a binned version of the Planck PS for plotting purposes
-planck_binned=np.loadtxt('COM_PowerSpect_CMB-TT-binned_R3.01.txt',skiprows=1)
-errs_binned=0.5*(planck_binned[:,2]+planck_binned[:,3]);
-plt.clf()
-plt.plot(ell,model)
-plt.errorbar(planck_binned[:,0],planck_binned[:,1],errs_binned,fmt='.')
-plt.show()
+print("Using the original set of parameters, chisq is ",chisq," for ",len(resid)-len(pars)," degrees of freedom.")
+
+
+#Part II
+pars=np.asarray([69, 0.022, 0.12, 0.06, 2.1e-9, 0.95])
+model=get_spectrum(pars)
+model=model[:len(spec)]
+resid=spec-model
+chisq=np.sum( (resid/errs)**2)
+print("After updating parameters, chisq is ",chisq," for ",len(resid)-len(pars)," degrees of freedom.")
