@@ -1,2 +1,2 @@
 Using the original set of parameters, chisq is  15267.93877272453  for  2501  degrees of freedom.
-After updating parameters, chisq is  3272.20367430447  for  2501  degrees of freedom.
+Using the updated set of parameters, χ2 is 3272.20367430447 for 2501 degrees of freedom.

@@ -1,0 +1,20 @@
+----------
+ READ ME
+----------
+
+STRUCTURE OF ASSIGNMENT:
+------------------------
+
+1. Problem_Set_4___Mattias_Lazda.pdf contains a write-up, summarizing all of the work that I did in chronological order. 
+2. Problem_Set_4.ipynb contains the raw code used to carry out this assignment. 
+3. JUPYTER_NOTEBOOK_PDF_PS4.pdf is a PDF version of the ipynb file, so that you don't have to open a new jupyter notebook if you do not want to. Note that some symbols may be missing (i.e. lambda) due to the pdf converter being unable to interpret them. 
+
+OTHER FILES AND CONTENTS:
+-------------------------
+- /Figures: Contains the figures generated during the problem set. 
+- problem_1.txt: chi2 values for problem 1. 
+- planck_fit_params.txt: Best fit parameters from question 2. 
+- planck_chain.txt: chisq and chain for problem 3. 
+- planck_chain_tauprior.txt: chisq and chain for problem 4. 
+
+
