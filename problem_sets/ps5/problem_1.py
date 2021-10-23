@@ -7,6 +7,7 @@ Last Updated: October 23, 2021
 
 import numpy as np
 import matplotlib.pyplot as plt
+plt.style.use('seaborn-pastel')
 
 def shift_arr(arr, shift_frames):
     '''
@@ -16,8 +17,7 @@ def shift_arr(arr, shift_frames):
 
     # Define functions to convolve
     f = arr
-    centr = len(f)//2
-
+    
     # Define delta function
     g = np.zeros(len(f))
     g[shift_frames] = 1

@@ -7,6 +7,7 @@ Last Updated: October 23, 2021
 
 import numpy as np
 import matplotlib.pyplot as plt
+plt.style.use('seaborn-pastel')
 
 def get_correlation_func(f, g):
     '''
