@@ -13,8 +13,6 @@ def shift_arr(arr, shift_frames):
     '''
     Shift an array set by the number of frames. 
     '''
-    
-
     # Define functions to convolve
     f = arr
     

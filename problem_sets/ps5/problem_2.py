@@ -17,7 +17,9 @@ def get_correlation_func(f, g):
     F = np.fft.rfft(f)
     G = np.fft.rfft(g)
 
-    return np.fft.irfft(F*np.conj(G))
+    corr = np.fft.irfft(F*np.conj(G))
+
+    return corr
 
 
 x = np.linspace(-5,5,1000)
