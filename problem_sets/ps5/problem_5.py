@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-plt.style.use('seaborn-pastel')
+plt.style.use('seaborn-muted')
 
 #------------#
 #   PART C   #
@@ -23,59 +23,83 @@ def my_analytic_fft(k, N):
     for i in range(0,N):
         # Compute analytic solution according to Equation provided in attached PDF
         my_fft[i] = ((1 - np.exp(-2J*np.pi*(i - k)))/(1 - np.exp(-2J*np.pi*(i - k)/N)) - (1 - np.exp(-2J*np.pi*(i + k)))/(1 - np.exp(-2J*np.pi*(i + k)/N)))/2J
-        #my_fft[i] = (1 - np.exp(-2J*np.pi*(k - i)))/(1 - np.exp(-2J*np.pi*(k - i)/N))/2J
+    
     return my_fft
 
 # Set number of points
-N = 1000
+N = 100
 
 # Define sin function with non-integer k
 x = np.arange(N)
-k = np.pi
+k = 25.55
 y = np.sin(2*np.pi*k*x/N)
 
-# Get analytic Fourier transform
-fft_analytic = my_analytic_fft(k, N)
-fft_analytic = np.abs(fft_analytic)
-
+# Get analytic fourier transform
+fft_analytic = np.abs(my_analytic_fft(k, N))
+rfft_analytic = fft_analytic[0 : N//2 + 1]
 # Get numpy fft
-fft_numpy = np.fft.fft(y)
-fft_numpy = np.abs(fft_numpy)
+fft_numpy = np.abs(np.fft.rfft(y))
 
-# Plot
-plt.plot(fft_analytic, label = 'Analytic solution')
-plt.plot(fft_numpy, label = 'FFT numpy')
+# Plot results
+plt.plot(fft_numpy[:], label = 'rFFT')
+plt.plot(rfft_analytic[:], label = 'Real Analytic FT', ls = '--')
+plt.xlabel('k')
 plt.legend()
-plt.savefig('figures/analytic_fft_vs_numpy.png')
-plt.show()
-plt.clf()
-
-# Plot residuals 
-plt.plot(fft_analytic - fft_numpy, label = 'residuals')
-plt.legend()
-plt.savefig('figures/resid.png')
+plt.savefig('figures/analytic_vs_fft.png')
 plt.show()
 
-# Calculate error
-diff = np.std(fft_analytic - fft_numpy)
-print('Error: {0}'.format(diff))
 
-# Sin wave as delta function
-k = 1
-y = np.sin(k*x)
-
-# Get analytic Fourier transform
-fft_analytic = my_analytic_fft(k, N)
-fft_analytic = np.abs(fft_analytic)
-
-# Get numpy fft
-fft_numpy = np.fft.fft(y)
-fft_numpy = np.abs(fft_numpy)
-
-# Plot
-plt.plot(fft_analytic, label = 'Analytic solution')
-plt.plot(fft_numpy, label = 'FFT numpy')
-plt.legend()
-plt.savefig('figures/delta_fnc_with_sin.png')
+# Plot Residuals
+plt.plot((fft_numpy - rfft_analytic)[:])
+plt.xlabel('k')
+plt.savefig('figures/ft_comparison_residuals.png')
 plt.show()
-plt.clf()
+# Get error
+print('Error:{0}'.format(np.abs(np.std((fft_numpy - rfft_analytic)[:]))))
+
+
+#------------#
+#   PART D   #
+#------------#
+# Set number of points
+N = 100
+
+# Define sin function with non-integer k
+x = np.arange(N)
+k = 25.55
+y = np.sin(2*np.pi*k*x/N)
+window = 0.5 - 0.5*np.cos(2*np.pi*x/N)
+fft_windowed = np.abs(np.fft.rfft(y*window))
+
+plt.plot(fft_numpy, label = 'rFFT')
+plt.plot(fft_windowed, label = 'Windowed rFFT')
+plt.legend()
+plt.xlabel('k')
+plt.savefig('figures/windowed_fft.png')
+plt.show()
+
+#------------#
+#   PART E   #
+#------------#
+
+# Get FT of the window function
+fft_window = np.fft.fft(window)
+# Generate expected result
+expected = np.zeros(len(fft_window))
+expected[0] = N/2
+expected[1] = -N/4
+expected[-1] = -N/4
+
+# Plot and compare
+plt.plot((fft_window), label = 'FFT of window')
+plt.plot(expected, label = 'Expected', ls = '--')
+plt.legend()
+plt.xlabel('k')
+plt.savefig('figures/fft_window_q5e.png')
+plt.show()
+
+plt.plot((fft_window)- expected)
+plt.xlabel('k')
+plt.savefig('figures/fft_window_q5e_resid.png')
+plt.show()
+

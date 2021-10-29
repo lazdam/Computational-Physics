@@ -2,7 +2,7 @@
 Problem Set #5, Problem #3
 Mattias Lazda
 260845451
-Last Updated: October 23, 2021
+Last Updated: October 29, 2021
 '''
 
 import numpy as np
@@ -33,7 +33,6 @@ def get_correlation_func(f, g):
 def modified_correlation(f, g, frame_shift):
 
     shifted_f = shift_arr(f, frame_shift)
-    #corr = get_correlation_func(g, shifted_f)
     corr = get_correlation_func(shifted_f, g)
     return np.abs(corr), np.abs(shifted_f)
 
