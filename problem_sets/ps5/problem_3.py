@@ -7,37 +7,35 @@ Last Updated: October 23, 2021
 
 import numpy as np
 import matplotlib.pyplot as plt 
-plt.style.use('seaborn-pastel')
+plt.style.use('seaborn-muted')
 
 # Import function from Problem #1 
-def shift_arr(arr, shift_frames):
+def shift_arr(f, shift_frames):
 
-    f = arr
-    g = np.zeros(len(f))
-    g[shift_frames] = 1
-    F = np.fft.rfft(f)
-    G = np.fft.rfft(g)
-    shifted_func = np.fft.irfft(F*G)
+    delta = np.zeros(len(f))
+    delta[shift_frames] = 1
+    F = np.fft.fft(f)
+    G = np.fft.fft(delta)
+    shifted_func = np.fft.ifft(F*G)
 
     return shifted_func
 
 # Import function from Problem #2
 def get_correlation_func(f, g):
 
-    F = np.fft.rfft(f)
-    G = np.fft.rfft(g)
+    F = np.fft.fft(f)
+    G = np.fft.fft(g)
 
-    return np.fft.irfft(F*np.conj(G))
+    return np.fft.ifft(F*np.conj(G))
 
 
 # Combine functions
 def modified_correlation(f, g, frame_shift):
-    '''
-    Computes the correlation function of f and g, where f is shifted by a set number of frames.
-    '''
-    shifted_f = shift_arr(f, frame_shift)
 
-    return get_correlation_func(shifted_f, g), shifted_f
+    shifted_f = shift_arr(f, frame_shift)
+    #corr = get_correlation_func(g, shifted_f)
+    corr = get_correlation_func(shifted_f, g)
+    return np.abs(corr), np.abs(shifted_f)
 
 # Generate Gaussian
 nframes = 1000
@@ -45,17 +43,19 @@ x = np.linspace(-5,5,nframes)
 y = np.exp(-0.5*(x)**2/0.35**2)
 
 # Test multiple frame shifts
-frame_shift_arr = [int(nframes/4), int(nframes/2), int(3*nframes/4)]
-for i in frame_shift_arr:
-    plt.plot(x, modified_correlation(y, y, i)[0], label = 'Shifted Frames: {0}'.format(i))
-    plt.legend(loc = 'lower center')
+shift = np.linspace(0, 0.99, 100)
 
-plt.savefig('correlated_shifted_gauss.png')    
-plt.show();plt.clf()
-
-for i in frame_shift_arr:
-    plt.plot(x, modified_correlation(y, y, i)[1], label = 'Shifted Frames: {0}'.format(i))
-    plt.legend(loc = 'lower center')
+for i in shift:
+    plt.clf()
+    corr, shift = modified_correlation(y, y, int(i*nframes))
+    plt.plot(corr, label = 'Correlation')
+    plt.plot(y, label = 'Original')
+    plt.plot(shift, label = 'Shifted', ls = '--')
+    plt.title('Shifted by {0} Frames'.format(int(i*nframes)))
+    plt.legend()
+    plt.pause(0.001)
     
-plt.savefig('shifted_gauss_p3.png')
-plt.show()
+
+
+
+
