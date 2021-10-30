@@ -103,3 +103,15 @@ plt.xlabel('k')
 plt.savefig('figures/fft_window_q5e_resid.png')
 plt.show()
 
+# Get smoothed FFT
+yft = np.fft.rfft(y)
+yft_smooth = 0.5*yft - 0.25*np.roll(yft,1) - 0.25*np.roll(yft, -1)
+
+# Compare to previously obtained windowed FFT
+plt.plot(np.abs(yft_smooth), label = 'smooth FT')
+plt.plot(fft_windowed, label = 'Windowed fft', ls = '--')
+plt.legend()
+plt.xlabel('k')
+plt.savefig('figures/smooth_fft_vs_windowed.png')
+plt.show()
+
