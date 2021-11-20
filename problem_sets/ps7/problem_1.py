@@ -23,7 +23,6 @@ plt.clf()
 
 # Test numpy random number generator
 coords = np.random.randint(1e6, 1e8, size = (3,n))
-
 fig = plt.figure()
 ax = plt.axes(projection = '3d')
 ax.scatter(coords[0], coords[1], coords[2], c = coords[2])

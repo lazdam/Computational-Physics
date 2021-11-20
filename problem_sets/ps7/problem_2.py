@@ -40,12 +40,6 @@ if True:
 
     plt.figure()
     xs = np.linspace(0,100,10000)
-    bool_set = set(exp_PDF(xs) <= M_l*lorentz_PDF(xs, gamma = gamma))
-    print(bool_set)
-    if len(bool_set)!=1:
-        print('Check gamma!')
-        assert(1==0)
-
     plt.plot(xs,exp_PDF(xs, lamda = lamda ),label='Exponential', ls = '--')
     plt.plot(xs,M_g*gauss_PDF(xs, sigma = sigma), label='Gaussian')
     plt.plot(xs,M_l*lorentz_PDF(xs, gamma = gamma), label='Lorentzian')
@@ -62,7 +56,7 @@ if True:
 # to generate exponential deviates.
 
 # Generate lorentzian distributed values
-# This comes from inverting the CDF of the PDF above
+# This comes from inverting the CDF of the PDF defined above. 
 def rand_lor(n, gamma = 1):
     q = np.random.rand(n)
     return gamma*np.tan(np.pi*(q - 0.5))
@@ -86,7 +80,7 @@ lors = lorentz_PDF(xs, gamma = gamma)
 keep = us < exps / (M_l * lors)
 exp_rands = xs[keep]
 
-# Plot histogram 
+# Plot histogram vs expected
 if True: 
     bins = np.linspace(min(exp_rands), max(exp_rands), 501)
     aa, bb = np.histogram(exp_rands, bins)
@@ -101,7 +95,3 @@ if True:
     plt.savefig('Figures/exp_from_lorentz.png')
     plt.show()
     print(f"Method is {np.mean(keep)*100}% Efficient")
-
-
-    
-
